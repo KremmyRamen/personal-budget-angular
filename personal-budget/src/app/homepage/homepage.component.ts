@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Chart } from 'chart.js/auto';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID, Inject} from '@angular/core';
+import { DataService } from '../data.service';
 
 @Component({
   selector: 'pb-homepage',
@@ -26,32 +27,30 @@ export class HomepageComponent implements OnInit,AfterViewInit{
     ],
     labels: ['']
 };
-  constructor(private http: HttpClient,@Inject(PLATFORM_ID) private platformId :any) { }
+constructor(private dataService: DataService, @Inject(PLATFORM_ID) private platformId: any) { }
 
 
-  ngOnInit(): void {
-    this.http.get('http://localhost:3000/budget')
-    .subscribe((res: any) => {
-      for (var i = 0; i < res.myBudget.length; i++) {
-        this.dataSource.datasets[0].data[i] = res.myBudget[i].budget;
-        this.dataSource.labels[i] = res.myBudget[i].title;
+ngOnInit(): void {
+  this.dataService.fetchData().subscribe((res: any) => {
+    for (var i = 0; i < res.myBudget.length; i++) {
+      this.dataSource.datasets[0].data[i] = res.myBudget[i].budget;
+      this.dataSource.labels[i] = res.myBudget[i].title;
     }
-    });
-  }
+  });
+}
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.createChart()
-    }, 1000);
-  }
+ngAfterViewInit(): void {
+  setTimeout(() => {
+    this.createChart();
+  }, 1000);
+}
 
-  createChart() {
-    if(isPlatformBrowser(this.platformId)){
-    var ctx = <HTMLCanvasElement>document.getElementById('myChart');
-
-    var myPieChart = new Chart(ctx, {
-        type: 'pie',
-        data: this.dataSource
+createChart() {
+  if (isPlatformBrowser(this.platformId)) {
+    const ctx = <HTMLCanvasElement>document.getElementById('myChart');
+    const myPieChart = new Chart(ctx, {
+      type: 'pie',
+      data: this.dataSource
     });
 }
   }
